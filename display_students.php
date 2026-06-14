@@ -1,6 +1,13 @@
 <?php
 include 'db_connection.php';
 $result = mysqli_query($conn, "SELECT * FROM students ORDER BY registration_date DESC");
+
+// Get additional stats
+$total_students = mysqli_num_rows($result);
+
+// Get class distribution (optional - shows how many students per class)
+$class_query = "SELECT class, COUNT(*) as count FROM students GROUP BY class";
+$class_result = mysqli_query($conn, $class_query);
 ?>
 
 <!DOCTYPE html>
@@ -75,11 +82,54 @@ $result = mysqli_query($conn, "SELECT * FROM students ORDER BY registration_date
             background-clip: text;
         }
 
-        .stats {
-            text-align: right;
-            margin-bottom: 20px;
-            color: #666;
+        /* Stats Dashboard */
+        .stats-dashboard {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px 30px;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .stat-label {
             font-size: 14px;
+            color: rgba(255,255,255,0.9);
+            margin-top: 5px;
+        }
+
+        .class-stats {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .class-badge {
+            background: white;
+            border: 1px solid #667eea;
+            border-radius: 20px;
+            padding: 8px 15px;
+            color: #667eea;
+            font-size: 13px;
         }
 
         table {
@@ -113,23 +163,17 @@ $result = mysqli_query($conn, "SELECT * FROM students ORDER BY registration_date
             color: #999;
         }
 
-        .badge {
-            background: #e8f0fe;
-            color: #667eea;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
         @media (max-width: 768px) {
             th, td {
                 padding: 8px;
                 font-size: 12px;
             }
-            .nav a {
-                padding: 8px 16px;
-                font-size: 14px;
+            .stat-card {
+                padding: 15px 20px;
+                min-width: 120px;
+            }
+            .stat-number {
+                font-size: 28px;
             }
         }
     </style>
@@ -143,15 +187,36 @@ $result = mysqli_query($conn, "SELECT * FROM students ORDER BY registration_date
         </div>
 
         <div class="table-card">
-            <h2>All Student Records</h2>
+            <h2>Student Records Dashboard</h2>
             
-            <?php $count = mysqli_num_rows($result); ?>
-            <div class="stats">
-                <span class="badge">Total Students: <?php echo $count; ?></span>
+            <!-- Stats Dashboard -->
+            <div class="stats-dashboard">
+                <div class="stat-card">
+                    <div class="stat-number"><?php echo $total_students; ?></div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"><?php echo mysqli_num_rows($class_result); ?></div>
+                    <div class="stat-label">Different Classes</div>
+                </div>
             </div>
 
-            <?php if($count > 0): ?>
-                </table>
+            <!-- Class Distribution -->
+            <?php if($total_students > 0): ?>
+            <div class="class-stats">
+                <?php 
+                mysqli_data_seek($class_result, 0);
+                while($class = mysqli_fetch_assoc($class_result)): 
+                ?>
+                    <span class="class-badge">📚 <?php echo $class['class']; ?>: <?php echo $class['count']; ?> students</span>
+                <?php endwhile; ?>
+            </div>
+            <?php endif; ?>
+
+            <h3 style="margin: 20px 0 15px 0; color: #555;">Student Records Table</h3>
+
+            <?php if($total_students > 0): ?>
+                <table>
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -164,7 +229,10 @@ $result = mysqli_query($conn, "SELECT * FROM students ORDER BY registration_date
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while($row = mysqli_fetch_assoc($result)): ?>
+                        <?php 
+                        mysqli_data_seek($result, 0);
+                        while($row = mysqli_fetch_assoc($result)): 
+                        ?>
                             <tr>
                                 <td><?php echo $row['id']; ?></td>
                                 <td><strong><?php echo $row['reg_number']; ?></strong></td>
@@ -179,13 +247,10 @@ $result = mysqli_query($conn, "SELECT * FROM students ORDER BY registration_date
                 </table>
             <?php else: ?>
                 <div class="empty-state">
-                    No students registered yet. Go to Registration page to add students.
+                     No students registered yet. Go to Registration page to add students.
                 </div>
             <?php endif; ?>
         </div>
     </div>
-    <footer style="text-align: center; padding: 20px; margin-top: 30px; color: #888;">
-    <p>© 2026 Student Management System - Tanzania Primary & Secondary Schools</p>
-</footer>
 </body>
 </html>
