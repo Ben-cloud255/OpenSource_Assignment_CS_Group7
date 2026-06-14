@@ -184,5 +184,8 @@ $result = mysqli_query($conn, "SELECT * FROM students ORDER BY registration_date
             <?php endif; ?>
         </div>
     </div>
+    <footer style="text-align: center; padding: 20px; margin-top: 30px; color: #888;">
+    <p>© 2026 Student Management System - Tanzania Primary & Secondary Schools</p>
+</footer>
 </body>
 </html>
