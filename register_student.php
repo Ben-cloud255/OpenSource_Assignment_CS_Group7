@@ -6,6 +6,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $full_name = $_POST['full_name'];
     $class = $_POST['class'];
     $parent_phone = $_POST['parent_phone'];
+    // Validate phone number (Tanzania format)
+if (!preg_match('/^07[0-9]{8}$/', $parent_phone)) {
+    $error = "❌ Invalid phone number! Use format: 07XXXXXXXX";
+}
     $address = $_POST['address'];
 
     $sql = "INSERT INTO students (reg_number, full_name, class, parent_phone, address) 
