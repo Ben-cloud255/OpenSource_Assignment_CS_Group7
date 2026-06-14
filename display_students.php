@@ -226,6 +226,7 @@ $class_result = mysqli_query($conn, $class_query);
                             <th>Parent Phone</th>
                             <th>Address</th>
                             <th>Registration Date</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -241,6 +242,13 @@ $class_result = mysqli_query($conn, $class_query);
                                 <td><?php echo $row['parent_phone']; ?></td>
                                 <td><?php echo $row['address']; ?></td>
                                 <td><?php echo date('d/m/Y', strtotime($row['registration_date'])); ?></td>
+                                <td>
+                                    <a href="delete_student.php?id=<?php echo $row['id']; ?>" 
+                                    style="color: red; text-decoration: none; padding: 5px 10px; background: #ffeeee; border-radius: 5px;" 
+                                    onclick="return confirm('Are you sure you want to delete this student?')">
+                                 🗑️ Delete
+                                     </a>
+                                </td>
                             </tr>
                         <?php endwhile; ?>
                     </tbody>
